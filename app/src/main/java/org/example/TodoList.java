@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TodoList {
     private ArrayList<Task> tasks;
@@ -9,8 +10,42 @@ public class TodoList {
         tasks = new ArrayList<>();
     }
 
-    public void add(String taskDescription) {
+  
+    public boolean add(String taskDescription) {
+        // we reject blank tasks here
+        if (taskDescription == null || taskDescription.trim().isEmpty()) {
+            System.out.println("Error: Task description cannot be empty.");
+            return false;
+        }
+        
+        //we reject duplicate tasks that are incomplete here
+        for (Task task : tasks) {
+            if (task.getDescription().equals(taskDescription) && !task.isComplete()) {
+                System.out.println("Error: An incomplete task with this description already exists.");
+                return false;
+            }
+        }
+        
         tasks.add(new Task(taskDescription));
+        return true;
+    }
+    
+  
+    public boolean addTag(String taskDescription, String tag) {
+        if (tag == null || tag.trim().isEmpty()) {
+            System.out.println("Error: Tag cannot be empty.");
+            return false;
+        }
+        
+        for (Task task : tasks) {
+            if (task.getDescription().equals(taskDescription)) {
+                task.addTag(tag);
+                return true;
+            }
+        }
+        
+        System.out.println("Task was not found: " + taskDescription);
+        return false;
     }
 
     public void complete(String taskDescription) {
@@ -58,13 +93,34 @@ public class TodoList {
             System.out.println("None of the tasks are incomplete.");
         }
     }
+    
+    
+     //Filter tasks by tag 
+    
+    public void filterByTag(String tag) {
+        if (tag == null || tag.trim().isEmpty()) {
+            System.out.println("Error: Tag cannot be empty.");
+            return;
+        }
+        
+        boolean found = false;
+        for (Task task : tasks) {
+            if (task.hasTag(tag.trim().toLowerCase())) {
+                System.out.println(task);
+                found = true;
+            }
+        }
+        
+        if (!found) {
+            System.out.println("No tasks found with tag: " + tag);
+        }
+    }
 
     public void clear() {
         tasks.clear();
         System.out.println("The todo list is cleared now.");
     }
 
-    //further helper methods for easier testing 
     public boolean isEmpty() {
         return tasks.isEmpty();
     }
@@ -89,5 +145,15 @@ public class TodoList {
             }
         }
         return false;
+    }
+    
+    //tags 
+    public List<String> getTaskTags(String description) {
+        for (Task task : tasks) {
+            if (task.getDescription().equals(description)) {
+                return new ArrayList<>(task.getTags());
+            }
+        }
+        return new ArrayList<>();
     }
 }
